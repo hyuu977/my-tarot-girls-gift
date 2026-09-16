@@ -1,4 +1,4 @@
-const CACHE = "tarot-gift-v1.17.1";
+const CACHE = "tarot-gift-v1.17.2";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)));
