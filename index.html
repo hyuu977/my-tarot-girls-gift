@@ -26,14 +26,14 @@ nav{position:sticky;top:0;z-index:10;max-width:520px;margin:0 auto 14px;display:
 <main>
 <section id="read"><div class="hello"><span>Welcome ♡</span><h2>今日は何を占う？</h2><p>気になることを選んで、カードに聞いてみよう 🌷</p></div>
 <div id="cats" class="category-grid"></div>
-<div class="panel"><h3>判定スタイル</h3><div class="judge"><button data-j="gentle" class="active">🌷 優しい判定<small>前向きに伝える</small></button><button data-j="authentic">🔮 本格判定<small>カードをそのまま読む</small></button><button data-j="ai">🤖 AI判定<small>GitHub版では準備中</small></button></div><p id="note" class="note">吉凶は変えず、注意点も隠さず、前向きな言葉でお伝えします。</p>
+<div class="panel"><h3>判定スタイル</h3><div class="judge"><button data-j="gentle" class="active">🌷 優しい判定<small>前向きに伝える</small></button><button data-j="authentic">🔮 本格判定<small>カードをそのまま読む</small></button><button data-j="ai">🤖 AI判定<small>AIがカードを詳しく読む</small></button></div><p id="note" class="note">吉凶は変えず、注意点も隠さず、前向きな言葉でお伝えします。</p>
 <h3>カード枚数</h3><div class="row"><button data-n="1" class="active">1枚</button><button data-n="3">3枚</button><button data-n="7">7枚</button></div>
 <h3>質問 <small>書かなくてもOK</small></h3><textarea id="q" placeholder="例）これからどうしたらいい？"></textarea>
 <div class="actions"><button id="go" class="go">♡ 今すぐ占う</button><button id="reset" class="secondary">↺ リセット</button></div></div><div id="result"></div>
 </section>
 <section id="dict" hidden><div class="panel"><h2>📖 カード辞典</h2><input id="search" placeholder="カード名を検索"><div id="dictionary" class="dictionary"></div></div></section>
 <section id="history" hidden><div class="panel"><h2>🕘 鑑定履歴</h2><div id="historyList"></div><button id="clear" class="secondary">履歴をすべて削除</button></div></section>
-<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.15.0</span><small>更新日 2026.09.16</small></div>
+<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.16.0</span><small>更新日 2026.09.17</small></div>
 </main>
 <div id="overlay" class="overlay" hidden><div class="stage"><div>✦</div><h2>カードをシャッフル中…</h2><p>あなたへのメッセージを選んでいるよ ♡</p><div class="shuffle"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
 <script>
@@ -62,9 +62,26 @@ $('#result').innerHTML=`<div class="panel"><p style="text-align:center">A MESSAG
 let h=JSON.parse(localStorage.getItem('myTarotGiftHistory')||'[]');h.unshift({date:new Date().toLocaleString('ja-JP'),category,fortune:f,q,msg});localStorage.setItem('myTarotGiftHistory',JSON.stringify(h.slice(0,50)));$('#result').scrollIntoView({behavior:'smooth'})}
 $('#cats').innerHTML=categories.map((x,i)=>`<button data-cat="${x}" class="${i===0?'active':''}"><span>${icons[i]}</span>${x}</button>`).join('');
 document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{if(b.dataset.j==='ai'){alert('AI判定はGitHub Pages版では準備中です。現在は「優しい判定」または「本格判定」をご利用ください。');return}judgment=b.dataset.j;document.querySelectorAll('[data-j]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#note').textContent=judgment==='gentle'?'吉凶は変えず、注意点も隠さず、前向きな言葉でお伝えします。':'良い意味も厳しい意味も、カードの象徴に沿って読みます。'});
+document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{judgment=b.dataset.j;document.querySelectorAll('[data-j]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#note').textContent=judgment==='gentle'?'吉凶は変えず、注意点も隠さず、前向きな言葉でお伝えします。':judgment==='authentic'?'良い意味も厳しい意味も、カードの象徴に沿って読みます。':'AIが選ばれたカード・正逆位置・相談内容を合わせて読み解きます。'});
 document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{count=+b.dataset.n;document.querySelectorAll('[data-n]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-$('#go').onclick=async()=>{await showShuffle();draw();render()};$('#reset').onclick=()=>location.reload();
+const AI_ENDPOINT='https://my-tarot-gift-ai.itaka0906.workers.dev/';
+function aiHtml(text){return esc(text).replace(/\n/g,'<br>')}
+async function renderAI(){
+  const q=$('#q').value.trim(),go=$('#go');
+  go.disabled=true;go.textContent='AI鑑定中…';
+  try{
+    const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category,question:q,mode:'AI判定',cards:cards.map(c=>({name:c.name,orientation:c.ori==='up'?'正位置':'逆位置'}))})});
+    const data=await res.json();
+    if(!res.ok||!data.ok||!data.reading)throw new Error(data.error||'AI鑑定に失敗しました');
+    const ch=cards.map(c=>`<article class="card ${c.ori==='rev'?'rev':''}"><b>${esc(c.pos)}</b><img src="${imgUrl(c.name)}" alt="${esc(c.name)}"><strong>${esc(c.name)}</strong><small>${esc(core(c.name))}</small><span>${c.ori==='up'?'正位置':'逆位置'}</span></article>`).join('');
+    $('#result').innerHTML=`<div class="panel"><p style="text-align:center">A MESSAGE FOR YOU</p><h2 style="text-align:center">AIカードリーディング</h2><div class="cards">${ch}</div><div class="one">AIがカード全体と相談内容を合わせて読みました。</div><div class="ai-reading"><p>${aiHtml(data.reading)}</p></div><div class="caution">占いは未来を確定するものではなく、気持ちを整理するためのヒントです。</div></div>`;
+    let h=JSON.parse(localStorage.getItem('myTarotGiftHistory')||'[]');h.unshift({date:new Date().toLocaleString('ja-JP'),category,fortune:'AI判定',q,msg:data.reading});localStorage.setItem('myTarotGiftHistory',JSON.stringify(h.slice(0,50)));$('#result').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    render();
+    const box=$('#result .panel');if(box)box.insertAdjacentHTML('afterbegin','<div class="caution">AI判定に接続できなかったため、通常のカード判定を表示しています。</div>');
+  }finally{go.disabled=false;go.textContent='♡ 今すぐ占う'}
+}
+$('#go').onclick=async()=>{await showShuffle();draw();if(judgment==='ai')await renderAI();else render()};$('#reset').onclick=()=>location.reload();
 function dict(){let q=$('#search').value.trim();$('#dictionary').innerHTML=names.filter(n=>!q||n.includes(q)).map(n=>`<button class="dictcard"><img src="${imgUrl(n)}" alt="${esc(n)}"><b>${esc(n)}</b><small>${esc(core(n))}</small></button>`).join('')}dict();$('#search').oninput=dict;
 function hist(){let h=JSON.parse(localStorage.getItem('myTarotGiftHistory')||'[]');$('#historyList').innerHTML=h.length?h.map(x=>`<details><summary>${esc(x.date)}　${esc(x.category)}　${esc(x.fortune)}</summary><p>${esc(x.q||'質問なし')}</p><p>${esc(x.msg)}</p></details>`).join(''):'まだ履歴はないよ。'}$('#clear').onclick=()=>{localStorage.removeItem('myTarotGiftHistory');hist()};
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('main>section').forEach(s=>s.hidden=true);$('#'+b.dataset.view).hidden=false;document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(b.dataset.view==='history')hist()});
