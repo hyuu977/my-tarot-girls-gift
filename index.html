@@ -20,6 +20,8 @@ nav{position:sticky;top:0;z-index:10;max-width:520px;margin:0 auto 14px;display:
 .cards{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.card{text-align:center;width:145px;background:#fff;border:1px solid #e8e3f4;border-radius:18px;padding:9px}.card img{width:100%;height:205px;object-fit:contain;border-radius:7px}.card.rev img{transform:rotate(180deg)}.card b,.card small,.card span{display:block}.card small{color:#a098b1}.card span{font-size:11px;color:#7f87ae}.score{text-align:center;background:linear-gradient(90deg,#fff0f7,#eef1ff);padding:14px;border-radius:15px;margin:16px 0}.score strong{font-size:22px;color:#e181ad}.one{padding:16px;border-radius:18px;background:linear-gradient(135deg,#ffebf6,#efebff);text-align:center;font-weight:700}.caution{background:#fff8fb;color:#9a7387;padding:12px;border-radius:14px;font-size:12px}.safety{background:#fff7f8;border:1px solid #efc8d1;color:#633f4a;padding:18px;border-radius:18px}.safety h3{margin-top:0;color:#8b4054}.safety a{color:#5269c9;font-weight:700}
 .dictionary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:14px}.dictcard{border:1px solid #e9e5f2;background:#fff;border-radius:14px;padding:7px;color:#58618a}.dictcard img{width:100%;height:145px;object-fit:contain}.dictcard b,.dictcard small{display:block}.dictcard small{font-size:9px}.version{text-align:center;color:#a09cb6;font-size:11px;margin-top:28px}.version>*{display:block}
 .overlay{position:fixed;inset:0;z-index:1500;display:grid;place-items:center;background:radial-gradient(circle,#fff4fb,#efe7ff 58%,#e0f1ff);overflow:hidden}.overlay[hidden]{display:none}.stage{text-align:center;color:#715778;width:min(700px,100vw)}.stage h2{font-family:Georgia,serif;color:#9c6695}.shuffle{position:relative;height:260px;overflow:hidden}.shuffle i{position:absolute;left:50%;top:35px;width:100px;height:160px;margin-left:-50px;border:2px solid #dca7c6;border-radius:10px;background:linear-gradient(135deg,#f7d9e9,#dcd5fa 55%,#cfe9fb);box-shadow:0 10px 28px #88659d40;will-change:transform,opacity}.overlay.playing .shuffle i{animation:shuffle2d .75s ease-in-out 4 both}.shuffle i:nth-child(2){animation-delay:-.12s!important}.shuffle i:nth-child(3){animation-delay:-.24s!important}.shuffle i:nth-child(4){animation-delay:-.36s!important}.shuffle i:nth-child(5){animation-delay:-.48s!important}.shuffle i:nth-child(6){animation-delay:-.60s!important}.shuffle i:nth-child(7){animation-delay:-.72s!important}@keyframes shuffle2d{0%,100%{transform:translateX(-150px) rotate(-16deg);opacity:.55}45%{transform:translateX(110px) translateY(-15px) rotate(13deg);opacity:1}72%{transform:translateX(-25px) rotate(-5deg);opacity:.9}}
+.dictcard{cursor:pointer}.dictcard:active{transform:scale(.98)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(31,34,56,.48);display:flex;align-items:center;justify-content:center;padding:18px;z-index:2000}.modal-backdrop[hidden]{display:none}.dict-modal{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.22);position:relative}.dict-modal .close{position:absolute;right:14px;top:12px;border:0;background:#f3f0f8;border-radius:999px;width:38px;height:38px;font-size:22px;color:#58618a}.dict-modal img{display:block;width:150px;height:220px;object-fit:contain;margin:8px auto 14px}.dict-modal h2{text-align:center;margin:4px 40px 8px}.dict-modal .keywords{text-align:center;color:#766b96;font-weight:700}.meaning-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.meaning-grid div{background:#faf8fd;border:1px solid #ece7f5;border-radius:14px;padding:12px}.meaning-grid b{display:block;margin-bottom:5px;color:#59618b}.meaning-grid p{margin:0;line-height:1.65}
 @media(max-width:600px){.category-grid{grid-template-columns:repeat(3,1fr)}.panel{padding:15px}.dictionary{grid-template-columns:repeat(3,1fr)}.dictcard img{height:120px}.card{width:128px}.card img{height:180px}.actions{display:grid;grid-template-columns:1fr}.go{width:100%}}
 </style>
 </head><body>
@@ -36,7 +38,8 @@ nav{position:sticky;top:0;z-index:10;max-width:520px;margin:0 auto 14px;display:
 </section>
 <section id="dict" hidden><div class="panel"><h2>📖 カード辞典</h2><input id="search" placeholder="カード名を検索"><div id="dictionary" class="dictionary"></div></div></section>
 <section id="history" hidden><div class="panel"><h2>🕘 鑑定履歴</h2><div id="historyList"></div><button id="clear" class="secondary">履歴をすべて削除</button></div></section>
-<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.17.2</span><small>更新日 2026.09.17</small></div>
+<div id="dictModal" class="modal-backdrop" hidden><div class="dict-modal" role="dialog" aria-modal="true" aria-labelledby="dictTitle"><button id="dictClose" class="close" aria-label="閉じる">×</button><h2 id="dictTitle"></h2><img id="dictImg" alt=""><p id="dictKeywords" class="keywords"></p><div id="dictDetails" class="meaning-grid"></div></div></div>
+<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.17.3</span><small>更新日 2026.09.17</small></div>
 </main>
 <div id="overlay" class="overlay" hidden><div class="stage"><div>✦</div><h2>カードをシャッフル中…</h2><p>あなたへのメッセージを選んでいるよ ♡</p><div class="shuffle"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
 <script>
@@ -107,7 +110,27 @@ async function renderAI(){
   }finally{go.disabled=false;go.textContent='♡ 今すぐ占う'}
 }
 $('#go').onclick=async()=>{const risk=safetyType($('#q').value);if(risk){renderSafety(risk);return}await showShuffle();draw();if(judgment==='ai')await renderAI();else render()};$('#reset').onclick=()=>location.reload();
-function dict(){let q=$('#search').value.trim();$('#dictionary').innerHTML=names.filter(n=>!q||n.includes(q)).map(n=>`<button class="dictcard"><img src="${imgUrl(n)}" alt="${esc(n)}"><b>${esc(n)}</b><small>${esc(core(n))}</small></button>`).join('')}dict();$('#search').oninput=dict;
+function detailMeaning(n){
+  const i=majors.indexOf(n), theme=core(n);
+  let suit='',rank=''; if(i<0)[suit,rank]=n.split(' ');
+  const domain=i>=0?'人生全体の流れ':suit==='カップ'?'感情や関係性':suit==='ワンド'?'行動や情熱':suit==='ソード'?'思考や判断':'仕事・お金・現実面';
+  const stage=i>=0?'このカード固有の象徴':rankCore[rank];
+  return {
+    upright:`「${theme}」が素直に働く時。${domain}で、今ある力を活かしながら前へ進むことを示します。`,
+    reversed:`「${theme}」が滞ったり、行き過ぎたりしやすい時。急いで結論を出さず、偏りや見落としを確認するサインです。`,
+    love:`恋愛では、${domain}に関する気持ちを丁寧に確かめることが鍵。相手を決めつけず、言葉と行動の両方を見て。`,
+    work:`仕事・学業では「${theme}」を意識。優先順位を一つ決め、具体的な一歩に落とし込むと進みやすいでしょう。`,
+    relations:`人間関係では、相手との距離感と自分の本音の両方を大切に。反応する前に一度状況を整理して。`,
+    advice:`今日のヒントは「${stage}」。できることを一つ選び、小さく実行してみてください。`
+  };
+}
+function openDict(n){
+  const d=detailMeaning(n); $('#dictTitle').textContent=n; $('#dictImg').src=imgUrl(n); $('#dictImg').alt=n; $('#dictKeywords').textContent=core(n);
+  $('#dictDetails').innerHTML=`<div><b>正位置</b><p>${esc(d.upright)}</p></div><div><b>逆位置</b><p>${esc(d.reversed)}</p></div><div><b>恋愛</b><p>${esc(d.love)}</p></div><div><b>仕事・学業</b><p>${esc(d.work)}</p></div><div><b>人間関係</b><p>${esc(d.relations)}</p></div><div><b>今日のヒント</b><p>${esc(d.advice)}</p></div>`;
+  $('#dictModal').hidden=false; document.body.style.overflow='hidden'; $('#dictClose').focus();
+}
+function closeDict(){ $('#dictModal').hidden=true; document.body.style.overflow=''; }
+function dict(){let q=$('#search').value.trim();$('#dictionary').innerHTML=names.filter(n=>!q||n.includes(q)).map(n=>`<button class="dictcard" data-card="${esc(n)}"><img src="${imgUrl(n)}" alt="${esc(n)}"><b>${esc(n)}</b><small>${esc(core(n))}</small></button>`).join('');document.querySelectorAll('.dictcard').forEach(b=>b.onclick=()=>openDict(b.dataset.card))}dict();$('#search').oninput=dict;$('#dictClose').onclick=closeDict;$('#dictModal').onclick=e=>{if(e.target===$('#dictModal'))closeDict()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#dictModal').hidden)closeDict()});
 function hist(){let h=JSON.parse(localStorage.getItem('myTarotGiftHistory')||'[]');$('#historyList').innerHTML=h.length?h.map(x=>`<details><summary>${esc(x.date)}　${esc(x.category)}　${esc(x.fortune)}</summary><p>${esc(x.q||'質問なし')}</p><p>${esc(x.msg)}</p></details>`).join(''):'まだ履歴はないよ。'}$('#clear').onclick=()=>{localStorage.removeItem('myTarotGiftHistory');hist()};
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('main>section').forEach(s=>s.hidden=true);$('#'+b.dataset.view).hidden=false;document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(b.dataset.view==='history')hist()});
 </script>
