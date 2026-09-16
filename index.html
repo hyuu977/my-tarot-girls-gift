@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7d9ef">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tarot Girls Gift">
 <title>My Tarot Girls Gift</title>
@@ -33,7 +36,7 @@ nav{position:sticky;top:0;z-index:10;max-width:520px;margin:0 auto 14px;display:
 </section>
 <section id="dict" hidden><div class="panel"><h2>📖 カード辞典</h2><input id="search" placeholder="カード名を検索"><div id="dictionary" class="dictionary"></div></div></section>
 <section id="history" hidden><div class="panel"><h2>🕘 鑑定履歴</h2><div id="historyList"></div><button id="clear" class="secondary">履歴をすべて削除</button></div></section>
-<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.16.0</span><small>更新日 2026.09.17</small></div>
+<div class="version"><b>My Tarot Girls Gift</b><span>GitHub Pages Version 1.17.0</span><small>更新日 2026.09.17</small></div>
 </main>
 <div id="overlay" class="overlay" hidden><div class="stage"><div>✦</div><h2>カードをシャッフル中…</h2><p>あなたへのメッセージを選んでいるよ ♡</p><div class="shuffle"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
 <script>
@@ -85,4 +88,11 @@ $('#go').onclick=async()=>{await showShuffle();draw();if(judgment==='ai')await r
 function dict(){let q=$('#search').value.trim();$('#dictionary').innerHTML=names.filter(n=>!q||n.includes(q)).map(n=>`<button class="dictcard"><img src="${imgUrl(n)}" alt="${esc(n)}"><b>${esc(n)}</b><small>${esc(core(n))}</small></button>`).join('')}dict();$('#search').oninput=dict;
 function hist(){let h=JSON.parse(localStorage.getItem('myTarotGiftHistory')||'[]');$('#historyList').innerHTML=h.length?h.map(x=>`<details><summary>${esc(x.date)}　${esc(x.category)}　${esc(x.fortune)}</summary><p>${esc(x.q||'質問なし')}</p><p>${esc(x.msg)}</p></details>`).join(''):'まだ履歴はないよ。'}$('#clear').onclick=()=>{localStorage.removeItem('myTarotGiftHistory');hist()};
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('main>section').forEach(s=>s.hidden=true);$('#'+b.dataset.view).hidden=false;document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(b.dataset.view==='history')hist()});
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
 </script></body></html>
